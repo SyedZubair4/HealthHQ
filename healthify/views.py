@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import UserDetails, DoctorDetails, userRequestForDoctor
+from .models import UserDetails, DoctorDetails, userRequestForDoctor,UploadFile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,18 +7,36 @@ from rest_framework.permissions import AllowAny
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import LoginSerializer
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token 
+from .machine import startMachine
+from .predict import Predict
+from django.core.mail import EmailMessage
+from django.conf import settings
+
+
+def send_mail_to_doctors(details):
+    
+    message_body = f' Hi, There is a request in {details.villageName} in city {details.city},{details.state} pincode is--{details.pincode}. {details.villageName} is in need of {details.specialization}. Please visit if you are free and nearby'
+    message = EmailMessage(
+        subject='Medical aid needed',
+        body=message_body,
+        from_email=settings.EMAIL_HOST_USER,
+        to=['syedzubair4unib@gmail.com','madhavmundhra221@gmail.com','shakeebahmed2003@gmail.com','waleedhakak786@gmail.com']
+    )
+    message.send()
+
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class Say(APIView):
     permission_classes = [AllowAny]
-
     def get(self, request):
         return Response({'message': 'Hello, world!'}, status=status.HTTP_200_OK)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SubmitUserDetails(APIView):
     permission_classes = [AllowAny]
-
     def post(self, request):
         data = request.data
         user_details = UserDetails.objects.create(
@@ -68,13 +86,16 @@ class userRequestingDoctor(APIView):
             state = data.get('state'),
             city = data.get('city'),
             pincode = data.get('pincode'),
-            specialization = data.get('specialization')
+            specialization = data.get('specialization'),
+            villageName = data.get('villagename')
         )
+        send_mail_to_doctors(data)
 
         requestedDoctor.save()
         return Response({'message':'Requested for respective doctor successfully','requested':data.get('specialization')},status=status.HTTP_201_CREATED)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
@@ -90,3 +111,21 @@ class LoginView(APIView):
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+@method_decorator(csrf_exempt, name='dispatch')
+class Predicting(APIView):
+    startMachine()
+    permission_classes = [AllowAny]
+    def post(sel,request):
+        uploaded_file = request.FILES.get('file')
+        if uploaded_file:
+            new_file = UploadFile(file=uploaded_file)
+            new_file.save()
+            # Full path of the uploaded file
+            full_file_path = new_file.file.path
+            predictedValue = Predict(full_file_path)
+            show_message=True
+
+            # Here you can perform any additional processing with the uploaded file
+            return Response({'message':predictedValue},status.HTTP_200_OK)  # Redirect to a success page
+        return Response({'message':'Error encountered'},status.HTTP_412_PRECONDITION_FAILED)
