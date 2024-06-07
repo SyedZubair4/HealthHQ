@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import UserDetails, DoctorDetails
+from .models import UserDetails, DoctorDetails, userRequestForDoctor
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from .serializers import LoginSerializer
 
 @method_decorator(csrf_exempt, name='dispatch')
 class Say(APIView):
@@ -56,3 +57,36 @@ class SubmitDoctorDetails(APIView):
         )
         doctor_details.save()
         return Response({'message': 'Doctor details submitted successfully'}, status=status.HTTP_201_CREATED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class userRequestingDoctor(APIView):
+    permission_classes = [AllowAny]
+    def post(self,request):
+        data = request.data
+        requestedDoctor = userRequestForDoctor.objects.create(
+            state = data.get('state'),
+            city = data.get('city'),
+            pincode = data.get('pincode'),
+            specialization = data.get('specialization')
+        )
+
+        requestedDoctor.save()
+        return Response({'message':'Requested for respective doctor successfully','requested':data.get('specialization')},status=status.HTTP_201_CREATED)
+
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
+            user = authenticate(request, username=email, password=password)
+            if user:
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

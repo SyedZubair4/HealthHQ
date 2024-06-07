@@ -92,5 +92,14 @@ class DoctorDetails(models.Model):
     )
     years_of_experience = models.IntegerField()
 
+class userRequestForDoctor(models.Model):
+    state = models.CharField(max_length=50)
+    city = models.CharField(max_length=100)
+    pincode = models.IntegerField()
+    specialization = models.CharField(
+        max_length=50,
+        choices=DOCTOR_SPECIALIZATION_CHOICES
+    )
+
 
 
