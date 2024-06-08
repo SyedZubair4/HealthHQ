@@ -89,7 +89,7 @@ class userRequestingDoctor(APIView):
             specialization = data.get('specialization'),
             villageName = data.get('villagename')
         )
-        send_mail_to_doctors(data)
+        #send_mail_to_doctors(data)
 
         requestedDoctor.save()
         return Response({'message':'Requested for respective doctor successfully','requested':data.get('specialization')},status=status.HTTP_201_CREATED)
