@@ -11,8 +11,7 @@ export const RegisterPage = () => {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
-        password1: '',
-        password2: ''
+        password: ''
     });
 
     const navigate = useNavigate();
@@ -24,25 +23,19 @@ export const RegisterPage = () => {
 
     const handleOnSubmit = async (e) => {
         e.preventDefault();
-        const { username, email, password1, password2 } = formData;
-
-        if (password1 !== password2) {
-            alert("Passwords do not match");
-            return;
-        }
-
+        const { username, email, password } = formData;
         try {
-            const response = await axios.post('http://localhost:8000/api/auth/registration/', {
+            const response = await axios.post('http://localhost:8000/register/', {
                 username,
                 email,
-                password1, 
-                password2
+                password 
             });
 
             if (response.status === 201) {
-                alert("Registration successful!");
+                
                 navigate('/')
                 alert("Registration successful!");
+                
             }
         } catch (error) {
             if (error.response) {
@@ -88,19 +81,8 @@ export const RegisterPage = () => {
                             type="password" 
                             placeholder='Password' 
                             required 
-                            name='password1' 
-                            value={formData.password1}
-                            onChange={handleInputChange}
-                        />
-                        <FaLock className='icon'/>
-                    </div>
-                    <div className='input-box'>
-                        <input 
-                            type="password" 
-                            placeholder='Confirm Password' 
-                            required 
-                            name='password2'
-                            value={formData.password2}
+                            name='password' 
+                            value={formData.password}
                             onChange={handleInputChange}
                         />
                         <FaLock className='icon'/>

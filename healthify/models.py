@@ -118,4 +118,8 @@ class UploadFile(models.Model):
         super().save(*args, **kwargs)
 
 
+class dataOfRoomIDs(models.Model):
+    roomID = models.CharField(max_length=100)
+
+
 

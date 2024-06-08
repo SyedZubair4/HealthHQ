@@ -132,10 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Allauth settings
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
 
 
 # Internationalization
@@ -170,6 +167,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Email configuration settings
+#email configuration
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-mail.outlook.com'
@@ -177,3 +175,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'AnicareNGO@outlook.com'
 EMAIL_HOST_PASSWORD = 'AlgoVision'
+
+ADMIN_EMAILS = ['syedzubair4unib@gmail.com','madhavmundhra221@gmail.com','shakeebahmed2003@gmail.com','waleedhakak786@gmail.com'],
